@@ -19,9 +19,9 @@ c = a + b
 ### Вопросы:
 | Вопрос  | Ответ |
 | ------------- | ------------- |
-| Какое значение будет присвоено переменной `c`?  | ???  |
-| Как получить для переменной `c` значение 12?  | ???  |
-| Как получить для переменной `c` значение 3?  | ???  |
+| Какое значение будет присвоено переменной `c`?  | TypeError: unsupported operand type(s) for +: 'int' and 'str'  |
+| Как получить для переменной `c` значение 12?  | c = str(a) + b  |
+| Как получить для переменной `c` значение 3?  | c = a + int(b)  |
 
 ## Обязательная задача 2
 Мы устроились на работу в компанию, где раньше уже был DevOps Engineer. Он написал скрипт, позволяющий узнать, какие файлы модифицированы в репозитории, относительно локальных изменений. Этим скриптом недовольно начальство, потому что в его выводе есть не все изменённые файлы, а также непонятен полный путь к директории, где они находятся. Как можно доработать скрипт ниже, чтобы он исполнял требования вашего руководителя?
@@ -43,12 +43,25 @@ for result in result_os.split('\n'):
 
 ### Ваш скрипт:
 ```python
-???
+#!/usr/bin/env python3
+
+import os
+
+bash_command = ["cd ~/sysadm-homeworks", "git status"]
+result_os = os.popen(' && '.join(bash_command)).read()
+#is_change = False
+for result in result_os.split('\n'):
+    if result.find('modified') != -1:
+        prepare_result = result.replace('\tmodified:   ', '')
+        print(prepare_result)
+#        break
 ```
 
 ### Вывод скрипта при запуске при тестировании:
 ```
-???
+vagrant@vagrant:~$ ./4-2.py
+01-intro-01/README.md
+README.md
 ```
 
 ## Обязательная задача 3
@@ -56,12 +69,39 @@ for result in result_os.split('\n'):
 
 ### Ваш скрипт:
 ```python
-???
+#!/usr/bin/env python3
+
+import os
+import sys
+if len(sys.argv) < 2:
+    sys.exit("I need path")
+p = sys.argv[1]
+bash_command = ["cd " + p + " 2>&1", "git status 2>&1"]
+
+result_os = os.popen(' && '.join(bash_command)).read()
+if result_os.find('branch') == -1 :
+    sys.exit("it's not a git path")
+
+#is_change = False
+for result in result_os.split('\n'):
+    if result.find('modified') != -1:
+        prepare_result = result.replace('\tmodified:   ', '')
+        print(prepare_result)
+        #break
+
 ```
 
 ### Вывод скрипта при запуске при тестировании:
 ```
-???
+vagrant@vagrant:~$ ./4-3.py /home/vagrant/sysadm-homework
+it's not a git path
+vagrant@vagrant:~$ ./4-3.py /home/vagrant
+it's not a git path
+vagrant@vagrant:~$ ./4-3.py
+I need path
+vagrant@vagrant:~$ ./4-3.py /home/vagrant/sysadm-homeworks
+01-intro-01/README.md
+README.md
 ```
 
 ## Обязательная задача 4
@@ -83,10 +123,40 @@ for result in result_os.split('\n'):
 
 ### Ваш скрипт:
 ```python
-???
+#!/usr/bin/env python3
+import time
+import socket
+
+host = {'drive.google.com': '0','mail.google.com': '0','google.com': '0'}
+
+for i in host:
+    host[i] = socket.gethostbyname(i)
+
+
+
+while True:
+
+    for i in host:
+        old = host[i]
+        new = socket.gethostbyname(i)
+
+        if old != new:
+            host[i] = new
+            print("[ERROR] "+i+" IP mismatch: old IP "+old+", new IP "+new)
+        print(i + " - " + host[i])
+    print("\n")
+    time.sleep(1)
 ```
 
 ### Вывод скрипта при запуске при тестировании:
 ```
-???
+drive.google.com - 64.233.165.194
+mail.google.com - 173.194.220.19
+google.com - 216.239.38.120
+
+
+[ERROR] drive.google.com IP mismatch: old IP 64.233.165.194, new IP 173.194.222.194
+drive.google.com - 173.194.222.194
+mail.google.com - 173.194.220.19
+google.com - 216.239.38.120
 ```
