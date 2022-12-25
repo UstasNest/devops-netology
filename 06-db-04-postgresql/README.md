@@ -45,18 +45,47 @@ root@ec4ae267df3f:/#
 ## Задача 2
 
 Используя `psql` создайте БД `test_database`.
-
+postgres=# CREATE DATABASE test_database;  
+CREATE DATABASE  
 Изучите [бэкап БД](https://github.com/netology-code/virt-homeworks/tree/virt-11/06-db-04-postgresql/test_data).
 
 Восстановите бэкап БД в `test_database`.
+root@ec4ae267df3f:/# psql -U postgres test_database < /data/backup/postgres/test_dump.sql  
+SET  
+SET  
+SET  
+SET  
+SET  
+ set_config  
+------------  
+  
+(1 row)  
+  
+SET  
+SET  
+SET  
+SET  
+SET  
+SET  
+CREATE TABLE  
+ALTER TABLE  
+CREATE SEQUENCE  
+ALTER TABLE  
+ALTER SEQUENCE  
+ALTER TABLE  
+COPY 8   
+ setval  
+--------  
+      8  
+(1 row)  
 
 Перейдите в управляющую консоль `psql` внутри контейнера.
 
 Подключитесь к восстановленной БД и проведите операцию ANALYZE для сбора статистики по таблице.
-
+![img_1.png](img_1.png)  
 Используя таблицу [pg_stats](https://postgrespro.ru/docs/postgresql/12/view-pg-stats), найдите столбец таблицы `orders` 
 с наибольшим средним значением размера элементов в байтах.
-
+![img_2.png](img_2.png)  
 **Приведите в ответе** команду, которую вы использовали для вычисления и полученный результат.
 
 ## Задача 3
@@ -66,15 +95,44 @@ root@ec4ae267df3f:/#
 провести разбиение таблицы на 2 (шардировать на orders_1 - price>499 и orders_2 - price<=499).
 
 Предложите SQL-транзакцию для проведения данной операции.
-
+test_database=# BEGIN;  
+BEGIN  
+test_database=*# ALTER TABLE orders RENAME TO orders_old;  
+ALTER TABLE  
+test_database=*# CREATE TABLE orders AS table orders_old WITH NO DATA;  
+CREATE TABLE AS  
+test_database=*# CREATE TABLE orders_1 (CHECK (price > 499)) INHERITS (orders);  
+CREATE TABLE  
+test_database=*# CREATE TABLE orders_2 (CHECK (price <= 499)) INHERITS (orders);  
+CREATE TABLE  
+test_database=*# CREATE RULE orders_1_ins AS ON INSERT TO orders WHERE (price > 499) DO INSTEAD INSERT INTO orders_1 VALUES (NEW.*);  
+CREATE RULE  
+test_database=*# CREATE RULE orders_2_ins AS ON INSERT TO orders WHERE (price <= 499) DO INSTEAD INSERT INTO orders_2 VALUES (NEW.*);  
+CREATE RULE  
+test_database=*# INSERT INTO orders SELECT * FROM orders_old;  
+INSERT 0 0  
+test_database=*# COMMIT;  
+COMMIT  
+![img_3.png](img_3.png)  
 Можно ли было изначально исключить "ручное" разбиение при проектировании таблицы orders?
+Да, создать таблицу с параметром PARTITION BY и таблицы orders_1, orders_2 c соответствующими ограничениями:  
+CREATE TABLE orders (id integer NOT NULL, title character varying(80) NOT NULL, price integer DEFAULT 0) PARTITION BY RANGE (price);
+CREATE TABLE orders_1 PARTITION OF orders FOR VALUES GREATER THAN ('499');  
+CREATE TABLE orders_2 PARTITION OF orders FOR VALUES FROM ('0') TO ('499');  
 
 ## Задача 4
 
-Используя утилиту `pg_dump` создайте бекап БД `test_database`.
-
-Как бы вы доработали бэкап-файл, чтобы добавить уникальность значения столбца `title` для таблиц `test_database`?
-
+Используя утилиту `pg_dump` создайте бекап БД `test_database`.  
+  
+root@ec4ae267df3f:/# pg_dump test_database -U postgres -v -f /data/backup/postgres/test_database.sql  
+  
+Как бы вы доработали бэкап-файл, чтобы добавить уникальность значения столбца `title` для таблиц `test_database`?  
+добавить UNIQUE:    
+CREATE TABLE public.orders (  
+    id integer NOT NULL,  
+    title character varying(80) NOT NULL UNIQUE,  
+    price integer DEFAULT 0  
+);  
 ---
 
 ### Как cдавать задание
