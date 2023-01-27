@@ -193,7 +193,8 @@ if you run "terraform apply" now.
 
 2. Ссылку на репозиторий с исходной конфигурацией терраформа.  
  
-
+[main.tf](https://github.com/UstasNest/devops-netology/blob/main/07-terraform-02-syntax/terraform/main.tf)
+[versions.tf](https://github.com/UstasNest/devops-netology/blob/main/07-terraform-02-syntax/terraform/versions.tf)
 ---
 
 ### Как cдавать задание
