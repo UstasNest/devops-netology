@@ -37,7 +37,8 @@
 10. Выложите playbook в репозиторий.
 11. В ответе дайте ссылки на оба репозитория с roles и одну ссылку на репозиторий с playbook.
 
-[https://github.com/UstasNest/vector-role](https://github.com/UstasNest/vector-role)
+[https://github.com/UstasNest/vector-role](https://github.com/UstasNest/vector-role)  
+
 [https://github.com/UstasNest/lighthouse-role](https://github.com/UstasNest/lighthouse-role)
 
 ---
