@@ -14,11 +14,13 @@
             url: "https://packages.clickhouse.com/rpm/stable/{{ item }}-{{ clickhouse_version }}.noarch.rpm"
             dest: "./{{ item }}-{{ clickhouse_version }}.rpm"
           with_items: "{{ clickhouse_packages }}"
+          tags: clickhouse
       rescue:
         - name: Get clickhouse distrib
           ansible.builtin.get_url:
             url: "https://packages.clickhouse.com/rpm/stable/clickhouse-common-static-{{ clickhouse_version }}.x86_64.rpm"
             dest: "./clickhouse-common-static-{{ clickhouse_version }}.rpm"
+          tags: clickhouse
     - name: Install clickhouse packages
       become: true
       ansible.builtin.yum:
@@ -26,6 +28,7 @@
           - clickhouse-common-static-{{ clickhouse_version }}.rpm
           - clickhouse-client-{{ clickhouse_version }}.rpm
           - clickhouse-server-{{ clickhouse_version }}.rpm
+      tags: clickhouse
       notify: Start clickhouse service
     - name: Flush handlers
       meta: flush_handlers
@@ -34,6 +37,7 @@
       register: create_db
       failed_when: create_db.rc != 0 and create_db.rc !=82
       changed_when: create_db.rc == 0
+      tags: clickhouse
 - name: Install Vector
   hosts: vector
   handlers:
@@ -42,16 +46,19 @@
       ansible.builtin.service:
         name: vector
         state: restarted
+      tags: vector
   tasks:
     - name: Get Vector package
       ansible.builtin.get_url:
         url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-1.x86_64.rpm"
         dest: "./vector-{{ vector_version }}.rpm"
+      tags: vector
     - name: Install vector package
       become: true
       ansible.builtin.yum:
         name:
           - vector-{{ vector_version }}.rpm
+      tags: vector
     - name: Change vector systemd unit
       become: true
       ansible.builtin.template:
@@ -61,6 +68,7 @@
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_gid }}"
         backup: true
+      tags: vector
     - name: Apply vector template
       become: true
       ansible.builtin.template:
@@ -71,3 +79,4 @@
         group: "{{ ansible_user_gid }}"
         validate: vector validate --no-environment --config-yaml %s
       notify: Start Vector service
+      tags: vector
