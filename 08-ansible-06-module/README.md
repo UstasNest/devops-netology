@@ -14,7 +14,40 @@
 
 ## Основная часть
 
-Ваша цель — написать собственный module, который вы можете использовать в своей role через playbook. Вс           - Control to demo if the result of this module is changed or not.
+Ваша цель — написать собственный module, который вы можете использовать в своей role через playbook. Всё это должно быть собрано в виде collection и отправлено в ваш репозиторий.
+
+**Шаг 1.** В виртуальном окружении создайте новый `my_own_module.py` файл.
+
+**Шаг 2.** Наполните его содержимым:
+
+```python
+#!/usr/bin/python
+
+# Copyright: (c) 2018, Terry Jones <terry.jones@example.org>
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
+
+DOCUMENTATION = r'''
+---
+module: my_test
+
+short_description: This is my test module
+
+# If this is part of a collection, you need to use semantic versioning,
+# i.e. the version is of the form "2.5.0" and not "2.4".
+version_added: "1.0.0"
+
+description: This is my longer description explaining my test module.
+
+options:
+    name:
+        description: This is the message to send to the test module.
+        required: true
+        type: str
+    new:
+        description:
+            - Control to demo if the result of this module is changed or not.
             - Parameter description can be a list as well.
         required: false
         type: bool
@@ -125,47 +158,17 @@ if __name__ == '__main__':
 ```
 Или возьмите это наполнение [из статьи](https://docs.ansible.com/ansible/latest/dev_guide/developing_modules_general.html#creating-a-module).
 
-**Шаг 3.** Заполните файл в соответствии с требованиями Ansible так, чтобы он выполнял осё это должно быть собрано в виде collection и отправлено в ваш репозиторий.
-
-**Шаг 1.** В виртуальном окружении создайте новый `my_own_module.py` файл.
-
-**Шаг 2.** Наполните его содержимым:
-
-```python
-#!/usr/bin/python
-
-# Copyright: (c) 2018, Terry Jones <terry.jones@example.org>
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
-from __future__ import (absolute_import, division, print_function)
-__metaclass__ = type
-
-DOCUMENTATION = r'''
----
-module: my_test
-
-short_description: This is my test module
-
-# If this is part of a collection, you need to use semantic versioning,
-# i.e. the version is of the form "2.5.0" and not "2.4".
-version_added: "1.0.0"
-
-description: This is my longer description explaining my test module.
-
-options:
-    name:
-        description: This is the message to send to the test module.
-        required: true
-        type: str
-    new:
-        description:
- новную задачу: module должен создавать текстовый файл на удалённом хосте по пути, определённом в параметре `path`, с содержимым, определённым в параметре `content`.
+**Шаг 3.** Заполните файл в соответствии с требованиями Ansible так, чтобы он выполнял основную задачу: module должен создавать текстовый файл на удалённом хосте по пути, определённом в параметре `path`, с содержимым, определённым в параметре `content`.
 
 **Шаг 4.** Проверьте module на исполняемость локально.
-
+```commandline
+(venv) vagrant@server:~/github/ansible$ ANSIBLE_LIBRARY=./library ansible -vvv -m my_own_module.py -a ' content="hello world" path="/home/vagrant/github/ansible/library/test" ' localhost
+```
+![img.png](img.png)
 **Шаг 5.** Напишите single task playbook и используйте module в нём.
 
 **Шаг 6.** Проверьте через playbook на идемпотентность.
-
+![img_1.png](img_1.png)
 **Шаг 7.** Выйдите из виртуального окружения.
 
 **Шаг 8.** Инициализируйте новую collection: `ansible-galaxy collection init my_own_namespace.yandex_cloud_elk`.
