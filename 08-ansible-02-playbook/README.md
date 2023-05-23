@@ -119,41 +119,41 @@ clickhouse-vector          : ok=10   changed=6    unreachable=0    failed=0    s
 ```
 9. Подготовьте README.md файл по своему playbook. В нём должно быть описано: что делает playbook, какие у него есть параметры и теги.  
 
-Плейбук предназначен для установки clickhouse и vector в docker контейнер на базе centos clickhouse-vector, указано все в в inventory.  
-В папке group_vars перечислены переменные:  
-clickhouse_version версия кликхауса  
-clickhouse_packages пакеты для скачивания  
-vector_version версия вектор  
-vector_config_dir каталог для установки  
-vector_config указаны конфигурация вектор-а, какие брать входные данные - тестовые и параметры подключения к БД кликхаус.    
+   9.1 Плейбук предназначен для установки clickhouse и vector в docker контейнер на базе centos clickhouse-vector, указано все в в inventory.  
+   В папке group_vars перечислены переменные:  
+   - clickhouse_version версия кликхауса  
+   - clickhouse_packages пакеты для скачивания  
+   - vector_version версия вектор  
+   - vector_config_dir каталог для установки  
+   - vector_config указаны конфигурация вектор-а, какие брать входные данные - тестовые и параметры подключения к БД кликхаус.    
 
-В папке inventory в файле prod указаны группы и хост clickhouse-vector  для установки соответствующих сервисов.  
+    9.2 В папке inventory в файле prod указаны группы и хост clickhouse-vector  для установки соответствующих сервисов.  
 
-В папке templates:  
-vector.service.j2 шаблон для настройки службы vector  
-vector.yml.j2 используется для настройки конфига vector, указана переменная где содержится конфигурация и что ее надо преобразовать в yml   
+    9.3 В папке templates:  
+   - vector.service.j2 шаблон для настройки службы vector  
+   - vector.yml.j2 используется для настройки конфига vector, указана переменная где содержится конфигурация и что ее надо преобразовать в yml  
 
-site.yml  
-указаны теги clickhouse, vector используется чтобы можно было запускать отдельные задачи, например при отладке, содержит 2 play.  
+    9.4 site.yml
+   - указаны теги clickhouse, vector используется чтобы можно было запускать отдельные задачи, например при отладке, содержит 2 play.  
 
-1.Install Clickhouse применяется на группу хостов clickhouse, объявляем handler для запуска clickhouse-server:  
+    9.4.1 Install Clickhouse применяется на группу хостов clickhouse, объявляем handler для запуска clickhouse-server:  
 
-задачи:  
-Get clickhouse distrib получение дистрибутивных пакетов и перехват ошибки rescue если пакета нет  
-Install clickhouse packages установка полученных пакетов, в notify указываем что требуется запуск сервера
-Flush handlers принудительно применяем notify, чтобы сервер сейчас запустился иначе 
-следующие задачи будут завершены с ошибкой.   
-Create database создаем БД logs  
+    задачи:  
+   - Get clickhouse distrib получение дистрибутивных пакетов и перехват ошибки rescue если пакета нет  
+   - Install clickhouse packages установка полученных пакетов, в notify указываем что требуется запуск сервера
+   - Flush handlers принудительно применяем notify, чтобы сервер сейчас запустился иначе 
+   - следующие задачи будут завершены с ошибкой.   
+   - Create database создаем БД logs  
 
-2. Install Vector применяется на группу хостов vector, объявляем handler для запуска vector:  
+    9.4.2. Install Vector применяется на группу хостов vector, объявляем handler для запуска vector:  
 
-задачи:  
-Get Vector package скачиваем дистрибутив в локальную папку  
-Install vector package устанвливаем  
-Change vector systemd unit изменяеем по шаблону файл vector.service устанваливаем пользователя и права  
-Apply vector template устанавливаем конфигурационный файл используя шаблон, запускаем валидацию, после этого указываю handler для запуска сервера
+    задачи:  
+   - Get Vector package скачиваем дистрибутив в локальную папку  
+   - Install vector package устанвливаем  
+   - Change vector systemd unit изменяеем по шаблону файл vector.service устанваливаем пользователя и права  
+   - Apply vector template устанавливаем конфигурационный файл используя шаблон, запускаем валидацию, после этого указываю handler для запуска сервера
 
-12. Готовый playbook выложите в свой репозиторий, поставьте тег `08-ansible-02-playbook` на фиксирующий коммит, в ответ предоставьте ссылку на него.
+10.Готовый playbook выложите в свой репозиторий, поставьте тег `08-ansible-02-playbook` на фиксирующий коммит, в ответ предоставьте ссылку на него.
 
 ---
 
