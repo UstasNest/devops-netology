@@ -191,7 +191,8 @@ if __name__ == '__main__':
   
 **Шаг 16.** Запустите playbook, убедитесь, что он работает.
 ![img_2.png](img_2.png)
-**Шаг 17.** В ответ необходимо прислать ссылки на collection и tar.gz архив, а также скриншоты выполнения пунктов 4, 6, 15 и 16.
+**Шаг 17.** В ответ необходимо прислать ссылки на collection и tar.gz архив, а также скриншоты выполнения пунктов 4, 6, 15 и 16.  
+
 [https://github.com/UstasNest/my_own_collection](https://github.com/UstasNest/my_own_collection)  
 
 
