@@ -185,11 +185,17 @@ if __name__ == '__main__':
 
 **Шаг 14.** Создайте ещё одну директорию любого наименования, перенесите туда single task playbook и архив c collection.
 
-**Шаг 15.** Установите collection из локального архива: `ansible-galaxy collection install <archivename>.tar.gz`.
+**Шаг 15.** Установите collection из локального архива: `ansible-galaxy collection install <archivename>.tar.gz`.  
 
+  скриншот ниже
+  
 **Шаг 16.** Запустите playbook, убедитесь, что он работает.
-
+![img_2.png](img_2.png)
 **Шаг 17.** В ответ необходимо прислать ссылки на collection и tar.gz архив, а также скриншоты выполнения пунктов 4, 6, 15 и 16.
+[https://github.com/UstasNest/my_own_collection](https://github.com/UstasNest/my_own_collection)  
+
+
+[https://github.com/UstasNest/my_own_collection/blob/main/my_own_namespace-yandex_cloud_elk-1.0.0.tar.gz](https://github.com/UstasNest/my_own_collection/blob/main/my_own_namespace-yandex_cloud_elk-1.0.0.tar.gz)  
 
 ## Необязательная часть
 
