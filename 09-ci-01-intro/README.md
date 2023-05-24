@@ -18,6 +18,7 @@
 6. On test -> On fix, Done.
 7. Done -> Closed, Open.
 ![img.png](img.png)
+
 Остальные задачи должны проходить по упрощённому workflow:
 
 1. Open -> On develop.
@@ -26,6 +27,7 @@
 4. On test -> On develop, Done.
 5. Done -> Closed, Open.
 ![img_1.png](img_1.png)
+
 **Что нужно сделать**
 
 1. Создайте задачу с типом bug, попытайтесь провести его по всему workflow до Done. 
@@ -36,9 +38,11 @@
 1. Верните задачи в статус Open.
 ![img_4.png](img_4.png)
 1. Перейдите в Scrum, запланируйте новый спринт, состоящий из задач эпика и одного бага, стартуйте спринт, проведите задачи до состояния Closed. Закройте спринт.
-![img_5.png](img_5.png)
-
-3. Если всё отработалось в рамках ожидания — выгрузите схемы workflow для импорта в XML. Файлы с workflow и скриншоты workflow приложите к решению задания.  
+![img_6.png](img_6.png)
+![img_7.png](img_7.png)
+![img_8.png](img_8.png)
+![img_9.png](img_9.png)
+4. Если всё отработалось в рамках ожидания — выгрузите схемы workflow для импорта в XML. Файлы с workflow и скриншоты workflow приложите к решению задания.  
 
 [https://github.com/UstasNest/devops-netology/blob/main/09-ci-01-intro/bugs.xml](https://github.com/UstasNest/devops-netology/blob/main/09-ci-01-intro/bugs.xml)  
 [https://github.com/UstasNest/devops-netology/blob/main/09-ci-01-intro/Others.xml](https://github.com/UstasNest/devops-netology/blob/main/09-ci-01-intro/Others.xml)  
