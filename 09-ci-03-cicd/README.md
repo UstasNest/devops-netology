@@ -24,9 +24,9 @@
 7. Исправьте ошибки, которые он выявил, включая warnings.
 8. Запустите анализатор повторно — проверьте, что QG пройдены успешно.
 9. Сделайте скриншот успешного прохождения анализа, приложите к решению ДЗ.
-![picture 3](../4c2726578d864d4905c363ade521f066b337136accba9752d3ec68bf69a31142.png)  
+![picture 3](./4c2726578d864d4905c363ade521f066b337136accba9752d3ec68bf69a31142.png)  
 
-![picture 2](../96924eaba55bb78a5969b43e6522b0a2f16fa5d7ce77d8ec048ef59ede9ba0e6.png)  
+![picture 2](./96924eaba55bb78a5969b43e6522b0a2f16fa5d7ce77d8ec048ef59ede9ba0e6.png)  
 
 ## Знакомство с Nexus
 
@@ -42,9 +42,9 @@
    
 2. В него же загрузите такой же артефакт, но с version: 8_102.
 3. Проверьте, что все файлы загрузились успешно.
-   ![picture 4](../1f04419e09e0f58c84e2cf492e2b1ea1070120be00a4f923aa0dcc3ccf8e1855.png)  
+   ![picture 4](./1f04419e09e0f58c84e2cf492e2b1ea1070120be00a4f923aa0dcc3ccf8e1855.png)  
 
-4. В ответе пришлите файл [maven-metadata.xml](/09-ci-03-cicd/maven-metadata.xml) для этого артефекта.
+4. В ответе пришлите файл [maven-metadata.xml](./maven-metadata.xml) для этого артефекта.
 
 ### Знакомство с Maven
 
@@ -55,7 +55,7 @@
 3. Удалите из `apache-maven-<version>/conf/settings.xml` упоминание о правиле, отвергающем HTTP- соединение — раздел mirrors —> id: my-repository-http-unblocker.
 4. Проверьте `mvn --version`.
 5. Заберите директорию [mvn](./mvn) с pom.
-![picture 6](../22cc8fc3bba89f583be563a171cb747ea2663bd23558c2b5f1d01fe226dc3d1b.png)  
+![picture 6](./22cc8fc3bba89f583be563a171cb747ea2663bd23558c2b5f1d01fe226dc3d1b.png)  
 
 ### Основная часть
 
@@ -63,8 +63,9 @@
 2. Запустите команду `mvn package` в директории с `pom.xml`, ожидайте успешного окончания.
 3. Проверьте директорию `~/.m2/repository/`, найдите ваш артефакт.
 4. В ответе пришлите исправленный файл `pom.xml`.
-   [pom.xml](../pom.xml)
-![picture 5](../04f71742e32615ad1f8e7211367f2a1623ae02cf03199d09635604c8e25fc679.png)  
+
+   [pom.xml](./pom.xml)  
+[picture 5](./04f71742e32615ad1f8e7211367f2a1623ae02cf03199d09635604c8e25fc679.png)  
 
 ---
 
