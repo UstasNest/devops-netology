@@ -31,7 +31,8 @@
     - name: Add Jenkins key
       become: true
       rpm_key:
-        key: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+        #key: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+        key: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
         state: present
         validate_certs: false
     - name: Install epel-release
@@ -95,6 +96,7 @@
           - docker-ce
           - docker-ce-cli
           - containerd.io
+          - python-setuptools
         state: present
     - name: Update pip
       become_user: root
