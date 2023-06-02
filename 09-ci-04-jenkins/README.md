@@ -280,8 +280,84 @@ Finished: SUCCESS
 5. Создать Scripted Pipeline, наполнить его скриптом из [pipeline](./pipeline).
 6. Внести необходимые изменения, чтобы Pipeline запускал `ansible-playbook` без флагов `--check --diff`, если не установлен параметр при запуске джобы (prod_run = True), по умолчанию параметр имеет значение False и запускает прогон с флагами `--check --diff`.
 7. Проверить работоспособность, исправить ошибки, исправленный Pipeline вложить в репозиторий в файл `ScriptedJenkinsfile`.
-8. Отправить ссылку на репозиторий с ролью и Declarative Pipeline и Scripted Pipeline.
+8. Отправить ссылку на репозиторий с ролью и 
+[Declarative Pipeline](https://github.com/UstasNest/vector-role/blob/main/Jenkinsfile) и [Scripted Pipeline](./ScriptedJenkinsfile).
 
+```log
+Started by user Рустам Мулюков
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on agent in /opt/jenkins_agent/workspace/scripted@2
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Git checkout)
+[Pipeline] git
+The recommended git tool is: NONE
+using credential f94f383b-0fd5-4c04-ab60-0b9d4a080c2f
+Cloning the remote Git repository
+Cloning repository git@github.com:UstasNest/devops-netology.git
+ > git init /opt/jenkins_agent/workspace/scripted@2 # timeout=10
+Fetching upstream changes from git@github.com:UstasNest/devops-netology.git
+ > git --version # timeout=10
+ > git --version # 'git version 1.8.3.1'
+using GIT_SSH to set credentials 
+ > git fetch --tags --progress git@github.com:UstasNest/devops-netology.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+Checking out Revision a5838b535fb1d76eba2344092364b8bbef060df6 (refs/remotes/origin/main)
+Commit message: "5"
+ > git config remote.origin.url git@github.com:UstasNest/devops-netology.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f a5838b535fb1d76eba2344092364b8bbef060df6 # timeout=10
+ > git branch -a -v --no-abbrev # timeout=10
+ > git checkout -b main a5838b535fb1d76eba2344092364b8bbef060df6 # timeout=10
+ > git rev-list --no-walk a5838b535fb1d76eba2344092364b8bbef060df6 # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (define prod_run)
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Run playbook)
+[Pipeline] dir
+Running in /opt/jenkins_agent/workspace/scripted@2/09-ci-04-jenkins/playbook
+[Pipeline] {
+[Pipeline] sh
++ ansible-playbook site.yml -i inventory/prod.yml --check --diff
+
+PLAY [Print os facts] **********************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [Print OS] ****************************************************************
+ok: [localhost] => {
+    "msg": "CentOS"
+}
+
+TASK [Print fact] **************************************************************
+ok: [localhost] => {
+    "msg": "all default fact"
+}
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+[Pipeline] }
+[Pipeline] // dir
+[Pipeline] cleanWs
+[WS-CLEANUP] Deleting project workspace...
+[WS-CLEANUP] Deferred wipeout is used...
+[WS-CLEANUP] done
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS
+```
 ## Необязательная часть
 
 1. Создать скрипт на groovy, который будет собирать все Job, которые завершились хотя бы раз неуспешно. Добавить скрипт в репозиторий с решением с названием `AllJobFailure.groovy`.
