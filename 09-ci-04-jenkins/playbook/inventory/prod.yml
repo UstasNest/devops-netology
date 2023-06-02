@@ -1,6 +1,6 @@
-1 ---
- 2   inside:
- 3     hosts:
- 4       localhost:
- 5         ansible_connection: local
- 6
+---
+   inside:
+     hosts:
+       localhost:
+         ansible_connection: local
+
