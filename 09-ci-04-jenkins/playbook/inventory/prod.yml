@@ -1,13 +1,6 @@
----
-  el:
-    hosts:
-      centos7:
-        ansible_connection: docker
-  deb:
-    hosts:
-      ubuntu:
-        ansible_connection: docker
-  local:
-    hosts:
-      localhost:
-        ansible_connection: local
+1 ---
+ 2   inside:
+ 3     hosts:
+ 4       localhost:
+ 5         ansible_connection: local
+ 6
