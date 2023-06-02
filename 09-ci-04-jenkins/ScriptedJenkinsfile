@@ -1,0 +1,23 @@
+node("agent"){
+    stage("Git checkout"){
+        git branch: 'main', credentialsId: 'f94f383b-0fd5-4c04-ab60-0b9d4a080c2f', url: 'git@github.com:UstasNest/devops-netology.git'
+    }
+    stage("define prod_run"){
+        env.prod_run = "false"
+    }
+    stage("Run playbook"){
+        if (env.prod_run=="true"){
+            dir('09-ci-04-jenkins/playbook') {
+               sh 'ansible-playbook site.yml -i inventory/prod.yml'
+            }
+            
+        }
+        else{
+            dir('09-ci-04-jenkins/playbook') {
+               sh 'ansible-playbook site.yml -i inventory/prod.yml --check --diff'
+            }
+
+        }
+        cleanWs()
+    }
+}
