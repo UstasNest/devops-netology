@@ -1,0 +1,52 @@
+[0KRunning with gitlab-runner 15.8.1 (f86890c6)[0;m
+[0K  on gitlab-runner-54fcc6c7b4-qbmk8 bsRorS2a, system ID: r_qqu9tphhGegS[0;m
+section_start:1686826750:prepare_executor
+[0K[0K[36;1mPreparing the "kubernetes" executor[0;m[0;m
+[0KUsing Kubernetes namespace: default[0;m
+[0KUsing Kubernetes executor with image gcr.io/cloud-builders/kubectl:latest ...[0;m
+[0KUsing attach strategy to execute scripts...[0;m
+section_end:1686826750:prepare_executor
+[0Ksection_start:1686826750:prepare_script
+[0K[0K[36;1mPreparing environment[0;m[0;m
+Waiting for pod default/runner-bsrors2a-project-2-concurrent-0wf5bw to be running, status is Pending
+Waiting for pod default/runner-bsrors2a-project-2-concurrent-0wf5bw to be running, status is Pending
+	ContainersNotReady: "containers with unready status: [build helper]"
+	ContainersNotReady: "containers with unready status: [build helper]"
+Running on runner-bsrors2a-project-2-concurrent-0wf5bw via gitlab-runner-54fcc6c7b4-qbmk8...
+
+section_end:1686826758:prepare_script
+[0Ksection_start:1686826758:get_sources
+[0K[0K[36;1mGetting source from Git repository[0;m[0;m
+[32;1mFetching changes with git depth set to 20...[0;m
+Initialized empty Git repository in /builds/netology/edu/.git/
+[32;1mCreated fresh repository.[0;m
+[32;1mChecking out 14969aab as main...[0;m
+
+[32;1mSkipping Git submodules setup[0;m
+
+section_end:1686826761:get_sources
+[0Ksection_start:1686826761:step_script
+[0K[0K[36;1mExecuting "step_script" stage of the job script[0;m[0;m
+[32;1m$ echo $KUBE_URL[0;m
+https://158.160.111.25
+[32;1m$ echo $KUBE_TOKEN[0;m
+eyJhbGciOiJSUzI1NiIsImtpZCI6Im8xb2F0YUV2OGdtLWRFSkw2d3FkWEpSZDRkUUlsalpiVzVRckwxOFQ2cncifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJnaXRsYWItYWRtaW4tdG9rZW4tOWZud2MiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZ2l0bGFiLWFkbWluIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiZmQ5NzhjYjgtMjJiOS00ZWYxLTgwZDUtZDc3YzQzZjU5MDlmIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmUtc3lzdGVtOmdpdGxhYi1hZG1pbiJ9.SJAgE_lyRsm3AWN7WlghdODvLF2lj2KxDolCAm1D7XjLTb5402Rta1CzwGAKpYNRmZMTJ320Fz93YOZfmDcvaLcYGsazF5xHwAR5LwHtHlHqadYnd_8y7i_YckS3hkwHWuJJcSqiFo4v7Rzzz1bR_oHw9wo185UtZc9I6fslYhCH9PX1ndokyxM5ihkqzqiTC_pDOjv2_yc8xxKeoxiR8z44foEQSmqpgb7btttoX_vYZImXjURGwcXr7rt_VJDegmav2Ko8COzcjOdnyw5aGd6B5QcN5fow78q0ezqkYG4zSQ-Heru_bPSj-D_52Zp3XpN9JGRUzHi2W8FoWaRScQ
+[32;1m$ kubectl config set-cluster k8s --server="$KUBE_URL" --insecure-skip-tls-verify=true[0;m
+Cluster "k8s" set.
+[32;1m$ kubectl config set-credentials admin --token="$KUBE_TOKEN"[0;m
+User "admin" set.
+[32;1m$ kubectl config set-context default --cluster=k8s --user=admin[0;m
+Context "default" created.
+[32;1m$ kubectl config use-context default[0;m
+Switched to context "default".
+[32;1m$ sed -i "s/__VERSION__/hello:gitlab-$CI_COMMIT_SHORT_SHA/" k8s.yaml[0;m
+[32;1m$ kubectl apply -f k8s.yaml[0;m
+namespace/python-api unchanged
+deployment.apps/python-api-deployment configured
+
+section_end:1686826774:step_script
+[0Ksection_start:1686826774:cleanup_file_variables
+[0K[0K[36;1mCleaning up project directory and file based variables[0;m[0;m
+
+section_end:1686826774:cleanup_file_variables
+[0K[32;1mJob succeeded[0;m

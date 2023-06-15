@@ -63,7 +63,7 @@
 
 - файл [gitlab-ci.yml](./.gitlab-ci.yml);
 - [Dockerfile](./Dockerfile); 
-- лог успешного выполнения пайплайна;
+- лог успешного выполнения пайплайна; [build](./buildlog.txt), [deploy](./deploylog.txt)   
 - решённый Issue.
 ![img_12.png](img_12.png)
 ### Важно 
