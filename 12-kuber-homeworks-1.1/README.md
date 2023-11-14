@@ -176,7 +176,7 @@ vagrant@server:~$ echo "source <(kubectl completion bash)" >> ~/.bashrc
 ![img.png](img.png)
 
 3. 
-![img_1.png](img_1.png)
+![img_2.png](img_2.png)
 ------
 
 ### Правила приёма работы
