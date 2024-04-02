@@ -52,7 +52,7 @@
 
 #### Решение
 1. создал s3 bucket в yandex cloud с помощью teraform:
-[terraform s3](/terraform/s3)
+[terraform s3](./terraform/s3)
 ```
 export YC_TOKEN=y0_Ag*********************************
 terraform init
@@ -64,12 +64,12 @@ export ACCESS_KEY=YCAJER898OJP68YRQW1RC27O_
 export SECRET_KEY=YCP6UK************
 terraform init -reconfigure -backend-config="access_key=$ACCESS_KEY" -backend-conf
 ```
-3. создал инфраструктуру [terraform](/terraform/main):
+3. создал инфраструктуру [terraform](./terraform/main):
 ```
 terraform init
 terraform apply
 ```
-4. на выходе файл с адресами серверов: [/ansible/group_vars/k8s/ip.yml](/ansible/group_vars/k8s/ip.yml)
+4. на выходе файл с адресами серверов: [./ansible/group_vars/all/ip.yml](./ansible/group_vars/k8s/ip.yml)
 
 ![img_21.png](img_21.png)
 ![img_22.png](img_22.png)
@@ -95,11 +95,12 @@ terraform apply
 3. Команда `kubectl get pods --all-namespaces` отрабатывает без ошибок.
 
 #### Решение
-1. в папке [ansible](/ansible/)
+1. установка и настройка хостов и всех приложений происходит с помощью ansible: [ansible](./ansible/).
+В kubespray дополнительно включил установку ingress-nginx, argocd, можно ставить все поотдельности используя теги: step1:step6
 ```
-ansible-playbook -i inventory/prod.yml site.yml
+ansible-playbook -i inventory/prod.yml site.yml --tag step1
 ```
-2. После установки на мастер ноде, дополнительно включил установку ingress-nginx, argocd
+2. После установки на мастер ноде, ансибл копирует .kube/config на локальную машину, результат проверки:
 ```
 vagrant@master:~$ kubectl get pod --all-namespaces
 NAMESPACE       NAME                                                READY   STATUS    RESTARTS        AGE
@@ -131,29 +132,7 @@ kube-system     nodelocaldns-fc5c5                                  1/1     Runn
 kube-system     nodelocaldns-nstql                                  1/1     Running   0               19h
 kube-system     nodelocaldns-vtc4l                                  1/1     Running   0               19h
 ```
-ансибл копирует .kube/config на локальную машину, результат проверки 
-```
-vagrant@server:~/diplom/ansible$ kubectl get pods --all-namespaces
-NAMESPACE     NAME                                       READY   STATUS    RESTARTS   AGE
-kube-system   calico-kube-controllers-6c7b7dc5d8-7vxfn   1/1     Running   0          73m
-kube-system   calico-node-2bdv4                          1/1     Running   0          74m
-kube-system   calico-node-8vwz9                          1/1     Running   0          74m
-kube-system   calico-node-ltfm7                          1/1     Running   0          74m
-kube-system   coredns-69db55dd76-7b7xm                   1/1     Running   0          72m
-kube-system   coredns-69db55dd76-85f4k                   1/1     Running   0          73m
-kube-system   dns-autoscaler-6f4b597d8c-jn7pb            1/1     Running   0          72m
-kube-system   kube-apiserver-master                      1/1     Running   1          75m
-kube-system   kube-controller-manager-master             1/1     Running   2          75m
-kube-system   kube-proxy-6rhxj                           1/1     Running   0          75m
-kube-system   kube-proxy-bqztf                           1/1     Running   0          75m
-kube-system   kube-proxy-z5ffl                           1/1     Running   0          75m
-kube-system   kube-scheduler-master                      1/1     Running   1          75m
-kube-system   nginx-proxy-node1                          1/1     Running   0          75m
-kube-system   nginx-proxy-node2                          1/1     Running   0          75m
-kube-system   nodelocaldns-fs2qn                         1/1     Running   0          72m
-kube-system   nodelocaldns-mzjjn                         1/1     Running   0          72m
-kube-system   nodelocaldns-zp5cv                         1/1     Running   0          72m
-```
+
 ---
 ### Создание тестового приложения
 
@@ -171,8 +150,9 @@ kube-system   nodelocaldns-zp5cv                         1/1     Running   0    
 
 1. Git репозиторий с тестовым приложением и Dockerfile.
 2. Регистри с собранным docker image. В качестве регистри может быть DockerHub или [Yandex Container Registry](https://cloud.yandex.ru/services/container-registry), созданный также с помощью terraform.
+
 #### Решение
-1. [nginx](https://github.com/UstasNest/app/tree/master)
+1. Тестовое приложение тут: [myapp](https://github.com/UstasNest/app)
 2. ![img.png](img.png)
 ---
 ### Подготовка cистемы мониторинга и деплой приложения
@@ -196,6 +176,11 @@ kube-system   nodelocaldns-zp5cv                         1/1     Running   0    
 4. Http доступ к тестовому приложению.
 
 #### Решение
+- деплой kube-prometeus происходит так же с помощью [ансибл](./ansible) с тегом --tag step4
+- helm chart myapp лежит [тут](./myapp/) манифесты qbec [тут](./qbec/myapp) 
+- для установки atlantis поставил nfs server, ставится плейбуком с тегом --tag step5, далее atlantis c тегом --tag step6
+- в папке [manifests](./manifests) лежат манифесты для настроки сервиса и сетевых настроек grafana,  деплоймент приложения, ингресс для доступа к приложению снаружи. Также конфигмап для настройки atlantis-a и ключи для подключения github webhook, либо github app.
+
 ![img_5.png](img_5.png)
 ![img_6.png](img_6.png)
 ![img_7.png](img_7.png)
@@ -222,7 +207,7 @@ kube-system   nodelocaldns-zp5cv                         1/1     Running   0    
 3. При создании тега (например, v1.0.0) происходит сборка и отправка с соответствующим label в регистри, а также деплой соответствующего Docker образа в кластер Kubernetes.
 
 #### Решение
-Установил Argo CD, настроил автоматический деплой, загружена версия с тегом 1.1.4
+Настроил CI на github [манифесты тут](./cicd) Установил Argo CD [конфигмап тут](./manifests), настроил автоматический деплой, загружена версия с тегом 1.1.4
 при комите в репозиторий происходит сборка и отправка в докерхаб. Обновления приложения не присходит
 ![img_11.png](img_11.png)
 ![img_12.png](img_12.png)
