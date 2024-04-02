@@ -1,0 +1,23 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+
+    steps:
+    - name: Login to docker.io
+      run:  echo ${{ secrets.DOCKER_PWD }} | docker login -u ${{ secrets.DOCKER_LOGIN }} --password-stdin
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag rmulyukov/nginxtest:${GITHUB_SHA::8}
+    - name: Push image to docker.io
+      run: docker push rmulyukov/nginxtest:${GITHUB_SHA::8}
+

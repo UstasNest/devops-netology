@@ -1,0 +1,13 @@
+project: app
+source:
+  repoURL: 'git@github.com:UstasNest/app.git'
+  path: helm/myapp
+  targetRevision: HEAD
+  helm:
+    valueFiles:
+      - values.yaml
+destination:
+  server: 'https://kubernetes.default.svc'
+  namespace: ingress-nginx
+syncPolicy:
+  automated: {}
