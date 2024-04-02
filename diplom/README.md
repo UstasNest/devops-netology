@@ -69,7 +69,7 @@ terraform init -reconfigure -backend-config="access_key=$ACCESS_KEY" -backend-co
 terraform init
 terraform apply
 ```
-4. на выходе файл с адресами серверов: [./ansible/group_vars/all/ip.yml](./ansible/group_vars/k8s/ip.yml)
+4. на выходе файл с адресами серверов: [./ansible/group_vars/all/ip.yml](./ansible/group_vars/all/ip.yml)
 
 ![img_21.png](img_21.png)
 ![img_22.png](img_22.png)
@@ -96,9 +96,11 @@ terraform apply
 
 #### Решение
 1. установка и настройка хостов и всех приложений происходит с помощью ansible: [ansible](./ansible/).
-В kubespray дополнительно включил установку ingress-nginx, argocd, можно ставить все поотдельности используя теги: step1:step6
+В kubespray дополнительно включил установку ingress-nginx, argocd, также плейбук меняет параметры в настройках приложений, можно ставить все по шагам используя теги: step1:step6
 ```
 ansible-playbook -i inventory/prod.yml site.yml --tag step1
+ansible-playbook -i inventory/prod.yml site.yml --tag step2
+ansible-playbook -i inventory/prod.yml site.yml --tag step3
 ```
 2. После установки на мастер ноде, ансибл копирует .kube/config на локальную машину, результат проверки:
 ```
