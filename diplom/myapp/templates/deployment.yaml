@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment-{{ .Release.Name }}
+  namespace: ingress-nginx
+  labels:
+    app: myapp
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: {{ .Values.myapp.img.repo }}:{{ .Values.myapp.img.tag }}
+        ports:
+          - containerPort: 80
+            name: myapphttp

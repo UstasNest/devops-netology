@@ -1,0 +1,376 @@
+---
+- name: Inventory IP
+  hosts: master
+  gather_facts: no
+  tasks:
+    - name: Master host IP
+      ansible.builtin.debug:
+        msg: "Master IP: {{ MASTER_EXT_IP }}, LoadBalancer: {{ NLB_EXT_IP }}"
+  tags:
+  - inventory
+  - step1
+
+- name: MASTER install common tools
+  hosts: master
+  gather_facts: no
+  tasks:
+    - name: Install mc, pip, ansible packages on master
+      become: true
+      ignore_errors: true
+      ansible.builtin.apt:
+        name: "{{ pkg }}"
+        update_cache: yes
+      vars:
+        pkg:
+          - mc
+          - pip
+          - ansible
+          - nfs-common
+      tags:
+      - com_tools
+      - step1
+- name: NODE01 install nfs-common
+  hosts: n01
+  gather_facts: no
+  tasks:
+    - name: n01 install nfs-common
+      become: true
+      ignore_errors: true
+      ansible.builtin.apt:
+        name: "{{ pkg }}"
+        update_cache: yes
+      vars:
+        pkg:
+          - nfs-common
+      tags:
+      - com_tools
+      - step1
+
+- name: NODE02 install nfs-common
+  hosts: n02
+  gather_facts: no
+  tasks:
+    - name: n02 install nfs-common
+      become: true
+      ignore_errors: true
+      ansible.builtin.apt:
+        name: "{{ pkg }}"
+        update_cache: yes
+      vars:
+        pkg:
+          - nfs-common
+      tags:
+      - com_tools
+      - step1
+
+- name: Preparing installation k8s
+  hosts: master
+  gather_facts: no
+  tasks:
+    - name: Install kubespray
+      block:
+        - name: Clone kubespray repository
+          ansible.builtin.git:
+            repo: "https://github.com/kubernetes-sigs/kubespray"
+            dest: "/home/vagrant/kubespray"
+          tags:
+          - prepare_inst
+          - step1
+
+#        - name: Switch branch of kubespray
+#          ansible.builtin.shell: |
+#            git checkout tags/v2.19.0
+#          args:
+#            executable: "/bin/bash"
+#            chdir: "/home/vagrant/kubespray/"
+#          tags:
+#          - prepare_inst
+#          - step1
+
+        - name: Install requirements for kubespray
+          become: true
+          ansible.builtin.pip:
+            requirements: "/home/vagrant/kubespray/requirements.txt"
+          tags:
+          - prepare_inst
+          - step1
+
+        - name: Copy dir sample to mycluster
+          ansible.builtin.copy:
+            src: "/home/vagrant/kubespray/inventory/sample/"
+            dest: "/home/vagrant/kubespray/inventory/mycluster"
+            remote_src: true
+            directory_mode: true
+          tags:
+          - prepare_inst
+          - step1
+
+        - name: Upload hosts
+          become: true
+          ansible.builtin.template:
+            src: "hosts-int.yaml.j2"
+            dest: "/home/vagrant/kubespray/hosts.yaml"
+            mode: "0644"
+#            owner: "{{ ansible_user_id }}"
+#            group: "{{ ansible_user_gid }}"
+          tags:
+          - prepare_inst
+          - step1
+
+        - name: Preparing environment for kubespray
+          ansible.builtin.shell: |
+            declare -a IPS=({{ MASTER_INT_IP }} {{ N01_INT_IP }} {{ N02_INT_IP }})
+            CONFIG_FILE=inventory/mycluster/hosts.yaml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
+            cp -v /home/vagrant/kubespray/hosts.yaml /home/vagrant/kubespray/inventory/mycluster/hosts.yaml
+            sed -i 's/helm_enabled: false/helm_enabled: true/g' inventory/mycluster/group_vars/k8s_cluster/addons.yml
+            sed -i 's/ingress_nginx_enabled: false/ingress_nginx_enabled: true/g' inventory/mycluster/group_vars/k8s_cluster/addons.yml
+            sed -i 's/# ingress_nginx_host_network: false/ingress_nginx_host_network: true/g' inventory/mycluster/group_vars/k8s_cluster/addons.yml
+            sed -i 's/# argocd_admin_password: "password"/argocd_admin_password: "password"/g' inventory/mycluster/group_vars/k8s_cluster/addons.yml
+            sed -i 's/argocd_enabled: false/argocd_enabled: true/g' inventory/mycluster/group_vars/k8s_cluster/addons.yml
+          args:
+            executable: "/bin/bash"
+            chdir: "/home/vagrant/kubespray/"
+          register: kubespray_env
+          tags:
+          - prepare_inst
+          - step1
+
+- name: Installation k8s
+  hosts: master
+  gather_facts: no
+  tasks:
+    - name: Launch k8s installation
+      block:
+        - name: Launch kubespray
+          ansible.builtin.shell: |
+            ansible-playbook -i inventory/mycluster/hosts.yaml --become --become-user=root cluster.yml > log
+          args:
+            executable: "/bin/bash"
+            chdir: "/home/vagrant/kubespray/"
+          register: kubespray_inst
+          tags:
+          - k8s_install
+          - step2
+
+#ansible-playbook -i inventory/mycluster/hosts.yaml  --become --become-user=root reset.yml
+        - name: Output results
+          ansible.builtin.debug:
+            var: kubespray_inst.stdout_lines
+          tags:
+          - k8s_install
+          - step2
+
+- name: Set environment k8s
+  hosts: master
+  gather_facts: no
+  tasks:
+  - name: Copying configs for k8s and check results
+    ansible.builtin.shell: |
+      mkdir -p /home/vagrant/.kube
+      sudo cp -fv /etc/kubernetes/admin.conf /home/vagrant/.kube/config
+      sudo chown $(id -u):$(id -g) /home/vagrant/.kube/config
+    args:
+      executable: "/bin/bash"
+      chdir: "/home/vagrant/"
+    register: k8s_cfg
+    tags:
+    - copy_k8s_cfg
+    - step3
+
+  - name: Append record to /etc/hosts
+    become: true
+    ansible.builtin.shell:
+      echo "{{ NLB_EXT_IP }} mycluster.royana.ru" >> /etc/hosts
+    args:
+      executable: "/bin/bash"
+      tags:
+      - copy_k8s_cfg
+      - step3
+
+- name: Copy kube config to local VM
+  hosts: admsrv
+  gather_facts: no
+  tasks:
+    - name: Copying configs for k8s and check results
+      ansible.builtin.shell: |
+        scp -o 'StrictHostKeyChecking no' "{{ MASTER_EXT_IP }}:/home/vagrant/.kube/config" $HOME/.kube/config
+        sed -i "s/127.0.0.1/{{ MASTER_EXT_IP }}/g" $HOME/.kube/config
+        sed -i 's/certificate-authority-data/#    certificate-authority-data/g' $HOME/.kube/config
+        sed -i '/- cluster:/a \ \ \ \ insecure-skip-tls-verify: true' $HOME/.kube/config
+        kubectl get pods --all-namespaces
+      args:
+        executable: "/bin/bash"
+        chdir: "/home/vagrant/"
+      register: copy_cfg
+      tags:
+      - copy_k8s_cfg
+      - step3
+
+    - name: Output results
+      ansible.builtin.debug:
+        var: copy_cfg.stdout_lines
+      tags:
+      - copy_k8s_cfg
+      - step3
+
+    - name: Append record to /etc/hosts
+      become: true
+      ansible.builtin.shell:
+        echo "{{ NLB_EXT_IP }} mycluster.royana.ru" >> /etc/hosts
+      args:
+        executable: "/bin/bash"
+      tags:
+      - copy_k8s_cfg
+      - step3
+
+- name: Kube-prometheus
+  hosts: master
+  gather_facts: no
+  tasks:
+    - name: Installation KP
+      block:
+        - name: Clone kube-prometheus repository
+          ansible.builtin.git:
+            repo: "https://github.com/prometheus-operator/kube-prometheus.git"
+            dest: "/home/vagrant/kube-prometheus"
+          tags:
+          - install_kp
+          - step4
+
+        - name: Apply k8s manifests
+          ansible.builtin.shell: |
+            kubectl apply --server-side -f manifests/setup
+            kubectl wait \
+              --for condition=Established \
+              --all CustomResourceDefinition \
+              --namespace=monitoring
+            kubectl apply -f manifests/
+          args:
+            executable: "/bin/bash"
+            chdir: "/home/vagrant/kube-prometheus/"
+          register: kp_inst
+          tags:
+          - install_kp
+          - step4
+
+    - name: Copy files to master
+      ansible.builtin.copy:
+        src: "/home/vagrant/diplom/manifests/"
+        dest: "/home/vagrant/manifests"
+        remote_src: false
+        directory_mode: "0777"
+        force: true
+      tags:
+      - install_kp
+      - step4
+
+    - name: Apply myapp & kube-prometheus configs
+      ansible.builtin.shell: |
+        kubectl apply -f deployment.yml
+        kubectl apply -f service.yml
+        kubectl apply -f ingress.yml
+        kubectl apply -f grafana-networkPolicy.yml
+        kubectl apply -f grafana-service.yml
+        kubectl apply -f argocd-configmap.yml
+      args:
+        executable: "/bin/bash"
+        chdir: "/home/vagrant/manifests"
+      tags:
+      - install_kp
+      - step4
+
+- name: Install NFS
+  gather_facts: no
+  hosts: master
+  become: true
+  tasks:
+    - name: Install NFS server package
+      ansible.builtin.apt:
+        name: nfs-kernel-server
+        state: present
+      tags:
+      - install_nfs
+      - step5
+
+    - name: Create a directory to share
+      ansible.builtin.file:
+        path: /var/nfs_share
+        state: directory
+        mode: "0777"
+      tags:
+      - install_nfs
+      - step5
+
+    - name: Add the directory to the NFS configuration file
+      ansible.builtin.lineinfile:
+        path: /etc/exports
+        line: "/var/nfs_share *(rw,sync,no_subtree_check,no_root_squash)"
+      tags:
+      - install_nfs
+      - step5
+
+    - name: Export the shared directory
+      ansible.builtin.command:
+        argv:
+          - exportfs
+          - -a
+      tags:
+      - install_nfs
+      - step5
+
+    - name: Restart NFS service
+      ansible.builtin.command:
+        cmd: systemctl restart nfs-kernel-server
+      tags:
+      - install_nfs
+      - step5
+
+    - name: Add helm nfs provisioner repo and install
+      ansible.builtin.shell: |
+        helm repo add nfs-subdir-external-provisioner \
+          https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+        helm install nfs-subdir-external-provisioner \
+          nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
+          --set nfs.server="{{ MASTER_EXT_IP }}" \
+          --set nfs.path=/var/nfs_share
+      args:
+        executable: "/bin/bash"
+      tags:
+      - install_nfs
+      - step5
+
+- name: Install Atlantis
+  hosts: master
+  gather_facts: no
+  become: false
+  tasks:
+    - name: Download terraform
+      ansible.builtin.get_url:
+        url: https://hashicorp-releases.yandexcloud.net/terraform/1.5.7/terraform_1.5.7_linux_amd64.zip
+        dest: /home/vagrant/terraform_1.5.7_linux_amd64.zip
+        mode: "0644"
+      tags:
+      - install_atlantis
+      - step6
+
+    - name: Install terraform
+      become: true
+      ansible.builtin.unarchive:
+        src: /home/vagrant/terraform_1.5.7_linux_amd64.zip
+        dest: /usr/local/bin
+        remote_src: true
+      tags:
+      - install_atlantis
+      - step6
+
+    - name: Deploy Atlantis
+      ansible.builtin.shell: |
+        kubectl apply -f configmap-atlantis.yml
+        kubectl create secret generic atlantis-vcs --from-file=token --from-file=gh-webhook-secret
+        kubectl apply -f atlantis.yml
+      args:
+        executable: "/bin/bash"
+        chdir: "/home/vagrant/manifests"
+      tags:
+      - install_atlantis
+      - step6
